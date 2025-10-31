@@ -1,19 +1,20 @@
 module "vpc" {
-  source             = "./modules/vpc"
-  vpc_cidr           = var.vpc_cidr
-  vpc_name           = "simple-prod-vpc"
-  public_subnet_cidr = var.public_subnet_cidr
-  availability_zone  = var.availability_zone
-  common_tags        = var.common_tags
+  source               = "./modules/vpc"
+  vpc_cidr             = var.vpc_cidr
+  vpc_name             = var.vpc_name
+  public_subnet_cidrs  = var.public_subnet_cidrs
+  private_subnet_cidrs = var.private_subnet_cidrs
+  availability_zones   = var.availability_zones
+  common_tags          = var.common_tags
 }
 
-module "ec2" {
-  source         = "./modules/ec2"
-  project_name   = "python-app"
-  vpc_id         = module.vpc.vpc_id
-  subnet_id      = module.vpc.public_subnet_id
-  ami_id         = "ami-02d26659fd82cf299"
-  instance_type  = "t3.micro"
-  key_name       = "my-keypair"
-  app_repo_url   = "https://github.com/chetanborade/python_flask.git"
+module "eks" {
+  source               = "./modules/eks"
+  cluster_name         = var.cluster_name
+  cluster_version      = var.cluster_version
+  vpc_id               = module.vpc.vpc_id
+  subnet_ids           = module.vpc.public_subnet_ids
+  private_subnet_ids   = module.vpc.public_subnet_ids
+  managed_node_config  = var.managed_node_config
+  common_tags          = var.common_tags
 }
